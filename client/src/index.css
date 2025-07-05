@@ -1,0 +1,260 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(47, 43%, 96%); /* soft-cream */
+  --foreground: hsl(32, 25%, 35%); /* warm-brown */
+  --muted: hsl(43, 40%, 87%); /* ivory */
+  --muted-foreground: hsl(32, 25%, 55%);
+  --popover: hsl(47, 43%, 96%);
+  --popover-foreground: hsl(32, 25%, 35%);
+  --card: hsl(47, 43%, 96%);
+  --card-foreground: hsl(32, 25%, 35%);
+  --border: hsl(32, 25%, 75%);
+  --input: hsl(43, 40%, 87%);
+  --primary: hsl(88, 23%, 62%); /* sage */
+  --primary-foreground: hsl(47, 43%, 96%);
+  --secondary: hsl(330, 35%, 78%); /* dusty-pink */
+  --secondary-foreground: hsl(32, 25%, 35%);
+  --accent: hsl(180, 32%, 76%); /* pastel-teal */
+  --accent-foreground: hsl(32, 25%, 35%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(60, 9%, 98%);
+  --ring: hsl(32, 25%, 35%);
+  --radius: 0.75rem;
+  
+  /* Custom colors */
+  --ivory: hsl(43, 40%, 87%);
+  --sage: hsl(88, 23%, 62%);
+  --dusty-pink: hsl(330, 35%, 78%);
+  --pastel-teal: hsl(180, 32%, 76%);
+  --warm-brown: hsl(32, 25%, 35%);
+  --soft-cream: hsl(47, 43%, 96%);
+}
+
+.dark {
+  --background: hsl(32, 25%, 15%);
+  --foreground: hsl(47, 43%, 90%);
+  --muted: hsl(32, 25%, 25%);
+  --muted-foreground: hsl(47, 20%, 65%);
+  --popover: hsl(32, 25%, 15%);
+  --popover-foreground: hsl(47, 43%, 90%);
+  --card: hsl(32, 25%, 15%);
+  --card-foreground: hsl(47, 43%, 90%);
+  --border: hsl(32, 25%, 35%);
+  --input: hsl(32, 25%, 25%);
+  --primary: hsl(88, 23%, 45%);
+  --primary-foreground: hsl(47, 43%, 96%);
+  --secondary: hsl(330, 35%, 55%);
+  --secondary-foreground: hsl(47, 43%, 90%);
+  --accent: hsl(180, 32%, 55%);
+  --accent-foreground: hsl(47, 43%, 90%);
+  --destructive: hsl(0, 62%, 50%);
+  --destructive-foreground: hsl(60, 9%, 98%);
+  --ring: hsl(47, 20%, 65%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-nunito antialiased bg-background text-foreground;
+  }
+}
+
+/* font stuff */
+.font-nunito {
+  font-family: 'Nunito', sans-serif;
+}
+
+/* sketchy notebook look */
+.sketchy-border {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+  border: 2px solid hsl(var(--warm-brown) / 0.2);
+  border-radius: 15px;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+}
+
+.sketchy-border::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  background: transparent;
+  border: 1px solid hsl(var(--warm-brown) / 0.2);
+  border-radius: 18px;
+  transform: rotate(-0.5deg);
+  pointer-events: none; /* Allow clicks to pass through */
+  z-index: -1; /* Put behind content */
+}
+
+.sketchy-border::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: transparent;
+  border: 1px solid hsl(var(--warm-brown) / 0.15);
+  border-radius: 17px;
+  transform: rotate(0.3deg);
+  pointer-events: none; /* Allow clicks to pass through */
+  z-index: -1; /* Put behind content */
+}
+
+.hand-drawn-shadow {
+  filter: drop-shadow(2px 3px 8px rgba(0, 0, 0, 0.15));
+}
+
+.notebook-texture {
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 24px,
+      hsl(var(--warm-brown) / 0.1) 25px,
+      hsl(var(--warm-brown) / 0.1) 26px
+    );
+}
+
+.widget-hover:hover {
+  transform: translateY(-2px) rotate(0.5deg);
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+}
+
+.doodle-icon {
+  transform: rotate(-2deg);
+  transition: all 0.3s ease;
+}
+
+.doodle-icon:hover {
+  transform: rotate(2deg) scale(1.1);
+}
+
+.hand-drawn-button {
+  background: linear-gradient(135deg, hsl(var(--ivory)) 0%, hsl(var(--dusty-pink)) 100%);
+  border: 2px solid hsl(var(--warm-brown));
+  border-radius: 25px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hand-drawn-button::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: transparent;
+  border: 1px dashed hsl(var(--warm-brown) / 0.5);
+  border-radius: 28px;
+  transform: rotate(-1deg);
+  pointer-events: none; /* Allow clicks to pass through */
+  z-index: -1; /* Put behind content */
+}
+
+.organic-shape {
+  border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+}
+
+.timer-circle {
+  stroke-dasharray: 251;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+/* widget container for grid */
+.widget-container {
+  position: relative;
+  z-index: 1;
+}
+
+.widget-container * {
+  pointer-events: auto; /* make sure widgets are clickable */
+}
+
+/* animations for widgets */
+@keyframes gentle-bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-3px); }
+  60% { transform: translateY(-2px); }
+}
+
+@keyframes sketch-draw {
+  0% { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.gentle-bounce {
+  animation: gentle-bounce 2s ease-in-out infinite;
+}
+
+.sketch-draw {
+  animation: sketch-draw 0.5s ease-out;
+}
+
+/* Grid layout overrides */
+.react-grid-layout {
+  position: relative;
+}
+
+.react-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top;
+}
+
+.react-grid-item.cssTransforms {
+  transition-property: transform;
+}
+
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  bottom: 0;
+  right: 0;
+  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNiIgaGVpZ2h0PSI2IiB2aWV3Qm94PSIwIDAgNiA2IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxnIGZpbGw9IiM0YTVjNmEiIGZpbGwtb3BhY2l0eT0iLjMiPjxwYXRoIGQ9Im0gNiw2IDAgLTYgLTYsNiB6Ii8+PC9nPjwvc3ZnPg==');
+  background-position: bottom right;
+  padding: 0 3px 3px 0;
+  background-repeat: no-repeat;
+  background-origin: content-box;
+  box-sizing: border-box;
+  cursor: se-resize;
+}
+
+/* notebook colors for widgets */
+.bg-ivory { background-color: hsl(var(--ivory)); }
+.bg-sage { background-color: hsl(var(--sage)); }
+.bg-dusty-pink { background-color: hsl(var(--dusty-pink)); }
+.bg-pastel-teal { background-color: hsl(var(--pastel-teal)); }
+.bg-warm-brown { background-color: hsl(var(--warm-brown)); }
+.bg-soft-cream { background-color: hsl(var(--soft-cream)); }
+
+.text-ivory { color: hsl(var(--ivory)); }
+.text-sage { color: hsl(var(--sage)); }
+.text-dusty-pink { color: hsl(var(--dusty-pink)); }
+.text-pastel-teal { color: hsl(var(--pastel-teal)); }
+.text-warm-brown { color: hsl(var(--warm-brown)); }
+.text-soft-cream { color: hsl(var(--soft-cream)); }
+
+.border-ivory { border-color: hsl(var(--ivory)); }
+.border-sage { border-color: hsl(var(--sage)); }
+.border-dusty-pink { border-color: hsl(var(--dusty-pink)); }
+.border-pastel-teal { border-color: hsl(var(--pastel-teal)); }
+.border-warm-brown { border-color: hsl(var(--warm-brown)); }
+.border-soft-cream { border-color: hsl(var(--soft-cream)); }
+
+
