@@ -33,7 +33,7 @@ export function WeatherWidget({
       ? { location, currentWeather, temperature }
       : null
   );
-  const OPENWEATHER_API_KEY = '9c71ed818c05c9966f594bccbcc5067b';
+  const OPENWEATHER_API_KEY = 'ADD_YOUR_OWN!!!';
 
   // Fetch weather on mount if location exists but no real weather data
   useEffect(() => {
