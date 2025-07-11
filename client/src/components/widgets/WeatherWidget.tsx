@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Cloud, X, MapPin, Sun, CloudRain, CloudSnow, Zap } from "lucide-react";
+import { useMemo } from "react";
 
 interface WeatherWidgetProps {
   location?: string;
@@ -19,59 +21,75 @@ export function WeatherWidget({
   onRemove 
 }: WeatherWidgetProps) {
   const [editingLocation, setEditingLocation] = useState(false);
-  const [newLocation, setNewLocation] = useState(location || "");
+  const [newLocation, setNewLocation] = useState(location || "San Francisco");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [weatherData, setWeatherData] = useState<{
+    location: string;
+    currentWeather: string;
+    temperature: number;
+  } | null>(
+    location && currentWeather && temperature
+      ? { location, currentWeather, temperature }
+      : null
+  );
+  const OPENWEATHER_API_KEY = '9c71ed818c05c9966f594bccbcc5067b';
+
+  // Fetch weather on mount if location exists but no real weather data
+  useEffect(() => {
+    if (location && (!weatherData)) {
+      fetchWeather(location);
+    }
+  }, []);
+
+  const fetchWeather = async (city: string) => {
+    setLoading(true);
+    setError(null);
+    // Normalize city: trim, collapse spaces, title case
+    let normalizedCity = city.trim().replace(/\s+/g, ' ');
+    normalizedCity = normalizedCity
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    try {
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(normalizedCity)}&units=imperial&appid=${OPENWEATHER_API_KEY}`
+      );
+      const data = await response.json();
+      if (data.cod === 200) {
+        // Map OpenWeatherMap weather to our widget's weather types
+        let weatherType = 'cloudy';
+        const main = data.weather[0].main.toLowerCase();
+        if (main.includes('clear')) weatherType = 'sunny';
+        else if (main.includes('rain')) weatherType = 'rainy';
+        else if (main.includes('snow')) weatherType = 'snowy';
+        else if (main.includes('storm') || main.includes('thunder')) weatherType = 'stormy';
+
+        setWeatherData({
+          location: normalizedCity,
+          currentWeather: weatherType,
+          temperature: Math.round(data.main.temp), // now in Fahrenheit
+        });
+        onUpdateData({
+          location: normalizedCity,
+          currentWeather: weatherType,
+          temperature: Math.round(data.main.temp),
+        });
+        setError(null);
+      } else {
+        setWeatherData(null); // Clear weather data if fetch fails
+        setError(data.message ? `Error: ${data.message}` : "City not found. Please select a valid city.");
+      }
+    } catch (err) {
+      setWeatherData(null); // Clear weather data if fetch fails
+      setError("Error fetching weather. Please try again.");
+    }
+    setLoading(false);
+  };
 
   const saveLocation = () => {
     if (newLocation.trim()) {
-      // basic weather based on location and season  
-      const location = newLocation.trim().toLowerCase();
-      const month = new Date().getMonth(); // 0-11
-      
-      let weather = 'sunny';
-      let temp = 20;
-      
-      // winter months (dec, jan, feb)
-      if (month === 11 || month === 0 || month === 1) {
-        if (location.includes('london') || location.includes('seattle') || location.includes('portland')) {
-          weather = 'rainy';
-          temp = Math.floor(Math.random() * 10) + 5; // 5-15°C
-        } else if (location.includes('new york') || location.includes('chicago') || location.includes('toronto')) {
-          weather = 'snowy';
-          temp = Math.floor(Math.random() * 8) - 2; // -2 to 6°C
-        } else {
-          weather = 'cloudy';
-          temp = Math.floor(Math.random() * 15) + 8; // 8-23°C
-        }
-      }
-      // summer months (jun, jul, aug)
-      else if (month >= 5 && month <= 7) {
-        if (location.includes('miami') || location.includes('phoenix') || location.includes('las vegas')) {
-          weather = 'sunny';
-          temp = Math.floor(Math.random() * 15) + 28; // 28-43°C
-        } else if (location.includes('san francisco')) {
-          weather = 'cloudy';
-          temp = Math.floor(Math.random() * 8) + 18; // 18-26°C
-        } else {
-          weather = 'sunny';
-          temp = Math.floor(Math.random() * 12) + 22; // 22-34°C
-        }
-      }
-      // spring/fall
-      else {
-        if (location.includes('seattle') || location.includes('london')) {
-          weather = 'rainy';
-          temp = Math.floor(Math.random() * 10) + 12; // 12-22°C
-        } else {
-          weather = Math.random() > 0.5 ? 'sunny' : 'cloudy';
-          temp = Math.floor(Math.random() * 15) + 15; // 15-30°C
-        }
-      }
-      
-      onUpdateData({
-        location: newLocation.trim(),
-        currentWeather: weather,
-        temperature: temp,
-      });
+      fetchWeather(newLocation.trim());
       setEditingLocation(false);
     }
   };
@@ -105,7 +123,7 @@ export function WeatherWidget({
           </div>
           <div>
             <h3 className="text-lg font-bold text-warm-brown">Weather</h3>
-            <span className="text-xs text-warm-brown/50">simulated data</span>
+            <span className="text-xs text-warm-brown/50">live data</span>
           </div>
         </div>
         <Button
@@ -117,29 +135,30 @@ export function WeatherWidget({
           <X className="h-4 w-4" />
         </Button>
       </div>
-      
-      <div className="flex-1 flex flex-col items-center justify-center space-y-4 min-h-0 overflow-hidden">
-        {location && currentWeather && temperature ? (
+      <div className="flex-1 flex flex-col items-center justify-start space-y-4 min-h-0 pt-2 overflow-y-auto w-full">
+        {loading ? (
+          <div className="text-center text-warm-brown/60">Loading weather...</div>
+        ) : weatherData ? (
           <>
             <div className="text-center">
-              <div className="text-4xl mb-2">{getWeatherEmoji(currentWeather)}</div>
+              <div className="text-4xl mb-2">{getWeatherEmoji(weatherData.currentWeather)}</div>
               <div className="text-3xl font-bold text-warm-brown mb-1">
-                {temperature}°C
+                {weatherData.temperature}°F
               </div>
-              <p className="text-sm text-warm-brown/70 capitalize mb-2">{currentWeather}</p>
+              <p className="text-sm text-warm-brown/70 capitalize mb-2">{weatherData.currentWeather}</p>
             </div>
-            
             <Button
               onClick={() => setEditingLocation(true)}
               variant="ghost"
               className="flex items-center space-x-2 text-warm-brown/60 hover:text-warm-brown text-xs max-w-full"
             >
               <MapPin className="h-3 w-3 flex-shrink-0" />
-              <span className="truncate">{location}</span>
+              <span className="truncate">{weatherData.location}</span>
             </Button>
           </>
         ) : (
           <div className="text-center space-y-4">
+            {error && <div className="text-xs text-red-500 mb-2">{error}</div>}
             <div className="text-4xl mb-2">🌤️</div>
             <p className="text-sm text-warm-brown/70">Set your location to see weather</p>
             <Button
@@ -156,20 +175,26 @@ export function WeatherWidget({
         {editingLocation && (
           <div className="w-full mt-4 space-y-2">
             <div className="bg-ivory/50 p-3 rounded-lg border border-warm-brown/20">
-              <Input
+              <label className="block text-xs text-warm-brown mb-1">Enter a city name:</label>
+              <input
                 value={newLocation}
                 onChange={(e) => setNewLocation(e.target.value)}
-                placeholder="Enter city name..."
+                placeholder="Type city name..."
                 className="w-full bg-white/50 border border-warm-brown/20 rounded text-warm-brown placeholder-warm-brown/60 focus:border-warm-brown focus:ring-1 focus:ring-warm-brown/20 text-sm px-3 py-2"
-                onKeyPress={(e) => e.key === 'Enter' && saveLocation()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    saveLocation();
+                  }
+                }}
                 autoFocus
               />
             </div>
+            {error && <div className="text-xs text-red-500 mt-2">{error}</div>}
             <div className="flex justify-end space-x-2">
               <Button
                 onClick={() => {
                   setEditingLocation(false);
-                  setNewLocation(location || "");
+                  setNewLocation(location || "San Francisco");
                 }}
                 variant="ghost"
                 size="sm"

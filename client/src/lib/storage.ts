@@ -162,8 +162,6 @@ export function createDefaultDashboard(): Dashboard {
       type: 'weather',
       data: {
         location: 'San Francisco',
-        currentWeather: 'sunny',
-        temperature: 22,
       },
       layout: { i: 'weather-1', x: 0, y: 4, w: 1, h: 2, minW: 1, minH: 2 },
     },
