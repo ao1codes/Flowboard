@@ -1,6 +1,6 @@
 # 🗒️ ao1code's Flowboard
 
-A customizable productivity dashboard built with React and TypeScript. Includes draggable widgets like to-do lists, timers, habit and mood trackers, all within a notebook-style interface.
+A customizable productivity dashboard built with React and TypeScript. Includes draggable widgets like to-do lists, timers, habit and mood trackers, in a notebook-style interface.
 
 ---
 
